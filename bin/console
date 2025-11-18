@@ -4,7 +4,21 @@
 use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-if (!is_dir(dirname(__DIR__).'/vendor')) {
+$projectDir = dirname(__DIR__);
+$envFile = $projectDir.'/.env';
+
+if (!is_file($envFile) || !is_readable($envFile)) {
+    $options = $_SERVER['APP_RUNTIME_OPTIONS'] ?? [];
+    if (!\is_array($options)) {
+        $options = [];
+    }
+    $options['disable_dotenv'] = true;
+    $_SERVER['APP_RUNTIME_OPTIONS'] = $options;
+    $_SERVER['APP_ENV'] ??= 'dev';
+    $_SERVER['APP_DEBUG'] ??= '1';
+}
+
+if (!is_dir($projectDir.'/vendor')) {
     throw new LogicException('Dependencies are missing. Try running "composer install".');
 }
 

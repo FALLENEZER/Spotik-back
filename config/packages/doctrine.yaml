@@ -1,0 +1,22 @@
+doctrine:
+  dbal:
+    # Configure your DB connection via DATABASE_URL in .env
+    url: '%env(resolve:DATABASE_URL)%'
+    # It's generally safe to let Doctrine detect the server version automatically
+    # server_version: null
+
+  orm:
+    auto_generate_proxy_classes: true
+    enable_lazy_ghost_objects: true
+
+    default_entity_manager: default
+    entity_managers:
+      default:
+        connection: default
+        mappings:
+          App:
+            is_bundle: false
+            type: attribute
+            dir: '%kernel.project_dir%/src/Entity'
+            prefix: 'App\\Entity'
+            alias: App
