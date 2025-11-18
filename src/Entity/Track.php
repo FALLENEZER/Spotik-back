@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\TrackRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TrackRepository::class)]
@@ -16,8 +15,8 @@ class Track
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $spotifyId = null;
+    #[ORM\Column(length: 128, unique: true, nullable: true)]
+    private ?string $spotifyId = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -28,17 +27,17 @@ class Track
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $duration = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $publishedAt = null;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $releaseDate = null;
 
     /**
-     * @var Collection<int, Playlist>
+     * @var Collection<int, PlaylistTrack>
      */
-    #[ORM\ManyToMany(targetEntity: Playlist::class, mappedBy: 'playlistTrack')]
-    private Collection $playlists;
+    #[ORM\OneToMany(mappedBy: 'track', targetEntity: PlaylistTrack::class, cascade: ['remove'])]
+    private Collection $playlistTracks;
 
     /**
      * @var Collection<int, RoomQueue>
@@ -48,7 +47,7 @@ class Track
 
     public function __construct()
     {
-        $this->playlists = new ArrayCollection();
+        $this->playlistTracks = new ArrayCollection();
         $this->roomQueues = new ArrayCollection();
     }
 
@@ -57,12 +56,12 @@ class Track
         return $this->id;
     }
 
-    public function getSpotifyId(): ?int
+    public function getSpotifyId(): ?string
     {
         return $this->spotifyId;
     }
 
-    public function setSpotifyId(int $spotifyId): static
+    public function setSpotifyId(?string $spotifyId): static
     {
         $this->spotifyId = $spotifyId;
 
@@ -110,47 +109,49 @@ class Track
         return $this->duration;
     }
 
-    public function setDuration(int $duration): static
+    public function setDuration(?int $duration): static
     {
         $this->duration = $duration;
 
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getReleaseDate(): ?\DateTimeImmutable
     {
-        return $this->publishedAt;
+        return $this->releaseDate;
     }
 
-    public function setPublishedAt(\DateTimeImmutable $publishedAt): static
+    public function setReleaseDate(?\DateTimeImmutable $releaseDate): static
     {
-        $this->publishedAt = $publishedAt;
+        $this->releaseDate = $releaseDate;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, Playlist>
+     * @return Collection<int, PlaylistTrack>
      */
-    public function getPlaylists(): Collection
+    public function getPlaylistTracks(): Collection
     {
-        return $this->playlists;
+        return $this->playlistTracks;
     }
 
-    public function addPlaylist(Playlist $playlist): static
+    public function addPlaylistTrack(PlaylistTrack $playlistTrack): static
     {
-        if (!$this->playlists->contains($playlist)) {
-            $this->playlists->add($playlist);
-            $playlist->addPlaylistTrack($this);
+        if (!$this->playlistTracks->contains($playlistTrack)) {
+            $this->playlistTracks->add($playlistTrack);
+            $playlistTrack->setTrack($this);
         }
 
         return $this;
     }
 
-    public function removePlaylist(Playlist $playlist): static
+    public function removePlaylistTrack(PlaylistTrack $playlistTrack): static
     {
-        if ($this->playlists->removeElement($playlist)) {
-            $playlist->removePlaylistTrack($this);
+        if ($this->playlistTracks->removeElement($playlistTrack)) {
+            if ($playlistTrack->getTrack() === $this) {
+                $playlistTrack->setTrack(null);
+            }
         }
 
         return $this;
@@ -177,7 +178,6 @@ class Track
     public function removeRoomQueue(RoomQueue $roomQueue): static
     {
         if ($this->roomQueues->removeElement($roomQueue)) {
-            // set the owning side to null (unless already changed)
             if ($roomQueue->getTrack() === $this) {
                 $roomQueue->setTrack(null);
             }

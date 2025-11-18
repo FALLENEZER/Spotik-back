@@ -31,19 +31,33 @@ class User
     /**
      * @var Collection<int, Room>
      */
-    #[ORM\OneToMany(targetEntity: Room::class, mappedBy: 'hostId')]
-    private Collection $rooms;
+    #[ORM\OneToMany(targetEntity: Room::class, mappedBy: 'host')]
+    private Collection $hostedRooms;
+
+    /**
+     * @var Collection<int, Room>
+     */
+    #[ORM\ManyToMany(targetEntity: Room::class, mappedBy: 'members')]
+    private Collection $memberRooms;
 
     /**
      * @var Collection<int, Playlist>
      */
-    #[ORM\OneToMany(targetEntity: Playlist::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: Playlist::class, mappedBy: 'owner')]
     private Collection $playlists;
+
+    /**
+     * @var Collection<int, FavoritePlaylist>
+     */
+    #[ORM\OneToMany(targetEntity: FavoritePlaylist::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $favoritePlaylists;
 
     public function __construct()
     {
-        $this->rooms = new ArrayCollection();
+        $this->hostedRooms = new ArrayCollection();
         $this->playlists = new ArrayCollection();
+        $this->memberRooms = new ArrayCollection();
+        $this->favoritePlaylists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -102,29 +116,52 @@ class User
     /**
      * @return Collection<int, Room>
      */
-    public function getRooms(): Collection
+    public function getHostedRooms(): Collection
     {
-        return $this->rooms;
+        return $this->hostedRooms;
     }
 
-    public function addRoom(Room $room): static
+    public function addHostedRoom(Room $room): static
     {
-        if (!$this->rooms->contains($room)) {
-            $this->rooms->add($room);
-            $room->setHostId($this);
+        if (!$this->hostedRooms->contains($room)) {
+            $this->hostedRooms->add($room);
+            $room->setHost($this);
         }
 
         return $this;
     }
 
-    public function removeRoom(Room $room): static
+    public function removeHostedRoom(Room $room): static
     {
-        if ($this->rooms->removeElement($room)) {
-            // set the owning side to null (unless already changed)
-            if ($room->getHostId() === $this) {
-                $room->setHostId(null);
+        if ($this->hostedRooms->removeElement($room)) {
+            if ($room->getHost() === $this) {
+                $room->setHost(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Room>
+     */
+    public function getMemberRooms(): Collection
+    {
+        return $this->memberRooms;
+    }
+
+    public function addMemberRoom(Room $room): static
+    {
+        if (!$this->memberRooms->contains($room)) {
+            $this->memberRooms->add($room);
+        }
+
+        return $this;
+    }
+
+    public function removeMemberRoom(Room $room): static
+    {
+        $this->memberRooms->removeElement($room);
 
         return $this;
     }
@@ -141,7 +178,7 @@ class User
     {
         if (!$this->playlists->contains($playlist)) {
             $this->playlists->add($playlist);
-            $playlist->setUserId($this);
+            $playlist->setOwner($this);
         }
 
         return $this;
@@ -150,9 +187,37 @@ class User
     public function removePlaylist(Playlist $playlist): static
     {
         if ($this->playlists->removeElement($playlist)) {
-            // set the owning side to null (unless already changed)
-            if ($playlist->getUserId() === $this) {
-                $playlist->setUserId(null);
+            if ($playlist->getOwner() === $this) {
+                $playlist->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FavoritePlaylist>
+     */
+    public function getFavoritePlaylists(): Collection
+    {
+        return $this->favoritePlaylists;
+    }
+
+    public function addFavoritePlaylist(FavoritePlaylist $favoritePlaylist): static
+    {
+        if (!$this->favoritePlaylists->contains($favoritePlaylist)) {
+            $this->favoritePlaylists->add($favoritePlaylist);
+            $favoritePlaylist->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavoritePlaylist(FavoritePlaylist $favoritePlaylist): static
+    {
+        if ($this->favoritePlaylists->removeElement($favoritePlaylist)) {
+            if ($favoritePlaylist->getUser() === $this) {
+                $favoritePlaylist->setUser(null);
             }
         }
 

@@ -19,28 +19,39 @@ class Playlist
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $publishedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $image = null;
 
     #[ORM\ManyToOne(inversedBy: 'playlists')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $userId = null;
+    private ?User $owner = null;
 
     /**
-     * @var Collection<int, Track>
+     * @var Collection<int, PlaylistTrack>
      */
-    #[ORM\ManyToMany(targetEntity: Track::class, inversedBy: 'playlists')]
-    private Collection $playlistTrack;
+    #[ORM\OneToMany(mappedBy: 'playlist', targetEntity: PlaylistTrack::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $playlistTracks;
+
+    /**
+     * @var Collection<int, FavoritePlaylist>
+     */
+    #[ORM\OneToMany(mappedBy: 'playlist', targetEntity: FavoritePlaylist::class, orphanRemoval: true)]
+    private Collection $favorites;
 
     /**
      * @var Collection<int, RoomQueue>
      */
-    #[ORM\OneToMany(targetEntity: RoomQueue::class, mappedBy: 'playlist')]
+    #[ORM\OneToMany(mappedBy: 'playlist', targetEntity: RoomQueue::class)]
     private Collection $roomQueues;
 
     public function __construct()
     {
-        $this->playlistTrack = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->playlistTracks = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
         $this->roomQueues = new ArrayCollection();
     }
 
@@ -61,50 +72,96 @@ class Playlist
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
-        return $this->publishedAt;
+        return $this->createdAt;
     }
 
-    public function setPublishedAt(\DateTimeImmutable $publishedAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->publishedAt = $publishedAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getImage(): ?string
     {
-        return $this->userId;
+        return $this->image;
     }
 
-    public function setUserId(?User $userId): static
+    public function setImage(?string $image): static
     {
-        $this->userId = $userId;
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, Track>
+     * @return Collection<int, PlaylistTrack>
      */
-    public function getPlaylistTrack(): Collection
+    public function getPlaylistTracks(): Collection
     {
-        return $this->playlistTrack;
+        return $this->playlistTracks;
     }
 
-    public function addPlaylistTrack(Track $playlistTrack): static
+    public function addPlaylistTrack(PlaylistTrack $playlistTrack): static
     {
-        if (!$this->playlistTrack->contains($playlistTrack)) {
-            $this->playlistTrack->add($playlistTrack);
+        if (!$this->playlistTracks->contains($playlistTrack)) {
+            $this->playlistTracks->add($playlistTrack);
+            $playlistTrack->setPlaylist($this);
         }
 
         return $this;
     }
 
-    public function removePlaylistTrack(Track $playlistTrack): static
+    public function removePlaylistTrack(PlaylistTrack $playlistTrack): static
     {
-        $this->playlistTrack->removeElement($playlistTrack);
+        if ($this->playlistTracks->removeElement($playlistTrack)) {
+            if ($playlistTrack->getPlaylist() === $this) {
+                $playlistTrack->setPlaylist(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FavoritePlaylist>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(FavoritePlaylist $favorite): static
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+            $favorite->setPlaylist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(FavoritePlaylist $favorite): static
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            if ($favorite->getPlaylist() === $this) {
+                $favorite->setPlaylist(null);
+            }
+        }
 
         return $this;
     }
@@ -130,7 +187,6 @@ class Playlist
     public function removeRoomQueue(RoomQueue $roomQueue): static
     {
         if ($this->roomQueues->removeElement($roomQueue)) {
-            // set the owning side to null (unless already changed)
             if ($roomQueue->getPlaylist() === $this) {
                 $roomQueue->setPlaylist(null);
             }

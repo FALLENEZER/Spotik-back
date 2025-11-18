@@ -19,28 +19,38 @@ class Room
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $publishedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?int $maxUsers = null;
+    #[ORM\Column(options: ['default' => 50])]
+    private ?int $maxUsers = 50;
 
-    #[ORM\Column]
-    private ?bool $isPrivate = null;
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isPrivate = false;
 
-    #[ORM\ManyToOne(inversedBy: 'rooms')]
+    #[ORM\ManyToOne(inversedBy: 'hostedRooms')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $hostId = null;
+    private ?User $host = null;
 
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'rooms')]
-    private Collection $гы�users;
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'memberRooms')]
+    #[ORM\JoinTable(name: 'room_member')]
+    private Collection $members;
+
+    /**
+     * @var Collection<int, RoomQueue>
+     */
+    #[ORM\OneToMany(mappedBy: 'room', targetEntity: RoomQueue::class, orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC', 'score' => 'DESC', 'addedAt' => 'ASC'])]
+    private Collection $queueItems;
 
     public function __construct()
     {
-        $this->гы�users = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->members = new ArrayCollection();
+        $this->queueItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,14 +70,14 @@ class Room
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->publishedAt;
+        return $this->createdAt;
     }
 
-    public function setPublishedAt(\DateTimeImmutable $publishedAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->publishedAt = $publishedAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -96,14 +106,14 @@ class Room
         return $this;
     }
 
-    public function getHostId(): ?User
+    public function getHost(): ?User
     {
-        return $this->hostId;
+        return $this->host;
     }
 
-    public function setHostId(?User $hostId): static
+    public function setHost(?User $host): static
     {
-        $this->hostId = $hostId;
+        $this->host = $host;
 
         return $this;
     }
@@ -111,23 +121,55 @@ class Room
     /**
      * @return Collection<int, User>
      */
-    public function getгы�users(): Collection
+    public function getMembers(): Collection
     {
-        return $this->гы�users;
+        return $this->members;
     }
 
-    public function addUser(User $user): static
+    public function addMember(User $user): static
     {
-        if (!$this->гы�users->contains($user)) {
-            $this->гы�users->add($user);
+        if (!$this->members->contains($user)) {
+            $this->members->add($user);
+            $user->addMemberRoom($this);
         }
 
         return $this;
     }
 
-    public function removeUser(User $user): static
+    public function removeMember(User $user): static
     {
-        $this->гы�users->removeElement($user);
+        if ($this->members->removeElement($user)) {
+            $user->removeMemberRoom($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RoomQueue>
+     */
+    public function getQueueItems(): Collection
+    {
+        return $this->queueItems;
+    }
+
+    public function addQueueItem(RoomQueue $queue): static
+    {
+        if (!$this->queueItems->contains($queue)) {
+            $this->queueItems->add($queue);
+            $queue->setRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQueueItem(RoomQueue $queue): static
+    {
+        if ($this->queueItems->removeElement($queue)) {
+            if ($queue->getRoom() === $this) {
+                $queue->setRoom(null);
+            }
+        }
 
         return $this;
     }

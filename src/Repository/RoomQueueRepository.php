@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Room;
 use App\Entity\RoomQueue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,28 +17,17 @@ class RoomQueueRepository extends ServiceEntityRepository
         parent::__construct($registry, RoomQueue::class);
     }
 
-    //    /**
-    //     * @return RoomQueue[] Returns an array of RoomQueue objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getNextPriorityForRoom(Room $room): int
+    {
+        $result = $this->createQueryBuilder('queue')
+            ->select('MAX(queue.priority) as maxPriority')
+            ->where('queue.room = :room')
+            ->setParameter('room', $room)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-    //    public function findOneBySomeField($value): ?RoomQueue
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $max = $result !== null ? (int) $result : 0;
+
+        return $max + 1;
+    }
 }
