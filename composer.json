@@ -9,12 +9,13 @@
         "ext-iconv": "*",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.18",
-        "doctrine/doctrine-migrations-bundle": "^3.6",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.5",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.3.*",
+        "symfony/http-client": "7.3.*",
         "symfony/monolog-bundle": "^3.0",
         "symfony/runtime": "7.3.*",
         "symfony/yaml": "7.3.*"
@@ -70,6 +71,7 @@
         }
     },
     "require-dev": {
+        "squizlabs/php_codesniffer": "^4.0",
         "symfony/debug-bundle": "7.3.*",
         "symfony/maker-bundle": "^1.64",
         "symfony/stopwatch": "7.3.*",
