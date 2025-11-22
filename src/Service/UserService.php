@@ -10,7 +10,9 @@ use App\Repository\UserRepository;
 
 class UserService
 {
-    function __construct(private UserRepository $repository, private UserFactory $userFactory)
+    function __construct(
+        private UserRepository $repository,
+        private UserFactory $userFactory)
     {
     }
 
