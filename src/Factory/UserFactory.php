@@ -24,10 +24,21 @@ class UserFactory
     {
         $user = new UserInputDTO();
 
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        $user->password = $data['password'];
-        $user->isAdmin = $data['isAdmin'];
+        $user->name = $data['name'] ?? null;
+        $user->email = $data['email'] ?? null;
+        $user->password = $data['password'] ?? null;
+        $user->isAdmin = $data['isAdmin'] ?? false;
+        return $user;
+    }
+
+    public function makeUserUpdateDTO(array $data): UserUpdateDTO
+    {
+        $user = new UserUpdateDTO();
+
+        $user->name = $data['name'] ?? null;
+        $user->email = $data['email'] ?? null;
+        $user->password = $data['password'] ?? null;
+        $user->isAdmin = $data['isAdmin'] ?? false;
         return $user;
     }
 

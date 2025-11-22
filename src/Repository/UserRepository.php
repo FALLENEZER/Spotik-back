@@ -39,4 +39,13 @@ class UserRepository extends ServiceEntityRepository
 
         return $user;
     }
+
+    public function destroy(User $user, $isFlush = true): void
+    {
+        $this->em->remove($user);
+
+        if ($isFlush) {
+            $this->em->flush();
+        }
+    }
 }

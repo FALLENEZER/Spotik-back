@@ -47,12 +47,23 @@ class UserController extends  AbstractController
         return $this->builder->showUserResponse($user);
     }
 
-//    #[Route('api/users/{user}', name: 'users_edit', methods: ['PATCH'])]
-//    public function update(Request $request): JsonResponse
-//    {
-//        $data = json_decode($request->getContent(), true);
-//
-////        $updateUserDTO = $this->factory->
-//    }
+    #[Route('api/users/{user}', name: 'users_edit', methods: ['PATCH'])]
+    public function update(Request $request, User $user): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $updateUserDTO = $this->factory->makeUserUpdateDTO($data);
+        $this->validator->validate($updateUserDTO);
+        $user = $this->service->update($user ,$updateUserDTO);
+        return $this->builder->updateUserResponse($user);
+    }
+
+    #[Route('api/users/{user}', name: 'users_edit', methods: ['DELETE'])]
+    public function destroy(User $user): JsonResponse
+    {
+        $this->service->destroy($user);
+        return $this->builder->destroyUserResponse($user);
+    }
+
 }
 

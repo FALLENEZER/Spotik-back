@@ -34,4 +34,16 @@ class UserResponseBuilder
         $userResource = $this->resource->userItem($userOutputDTO);
         return new JsonResponse($userResource, $status, $headers, $isJson);
     }
+
+    public function updateUserResponse(User $user, $status = 200, $headers = [], $isJson = true): JsonResponse
+    {
+        $userOutputDTO = $this->userFactory->makeUserOutputDTO($user);
+        $userResource = $this->resource->userItem($userOutputDTO);
+        return new JsonResponse($userResource, $status, $headers, $isJson);
+    }
+
+    public function destroyUserResponse($status = 200, $headers = [], $isJson = true): JsonResponse
+    {
+        return new JsonResponse(['message' => 'deleted'], $status, $headers, $isJson);
+    }
 }

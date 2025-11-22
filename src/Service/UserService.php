@@ -30,4 +30,9 @@ class UserService
         $user = $this->userFactory->editUser($user, $userUpdateDTO);
         return $this->repository->update($user);
     }
+
+    public function destroy(User $user): void
+    {
+        $this->repository->destroy($user);
+    }
 }
