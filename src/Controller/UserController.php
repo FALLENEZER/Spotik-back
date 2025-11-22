@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Factory\UserFactory;
-use App\Repository\UserRepository;
 use App\ResponseBuilder\UserResponseBuilder;
 use App\Service\PasswordHashService;
 use App\Service\UserService;
