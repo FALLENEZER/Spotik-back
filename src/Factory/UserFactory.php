@@ -16,6 +16,7 @@ class UserFactory
         $user->setName($dto->name);
         $user->setEmail($dto->email);
         $user->setPassword($dto->password);
+        $user->setIsAdmin((bool)($dto->isAdmin ?? false));
 
         return $user;
     }
@@ -38,7 +39,8 @@ class UserFactory
         $user->name = $data['name'] ?? null;
         $user->email = $data['email'] ?? null;
         $user->password = $data['password'] ?? null;
-        $user->isAdmin = $data['isAdmin'] ?? false;
+        // Для PATCH не подставляем значение по умолчанию, чтобы не затирать поле
+        $user->isAdmin = $data['isAdmin'] ?? null;
         return $user;
     }
 
@@ -46,9 +48,10 @@ class UserFactory
     {
         $userDto = new UserOutputDTO();
 
+        $userDto->id = $user->getId();
         $userDto->name = $user->getName();
         $userDto->email = $user->getEmail();
-        $userDto->password = $user->getPassword();
+        $userDto->isAdmin = $user->isAdmin();
 
         return $userDto;
     }
@@ -60,10 +63,18 @@ class UserFactory
 
     public function editUser(User $user, UserUpdateDTO $dto): User
     {
-        $user->setName($dto->name);
-        $user->setEmail($dto->email);
-        $user->setPassword($dto->password);
-        $user->setIsAdmin($dto->isAdmin);
+        if ($dto->name !== null) {
+            $user->setName($dto->name);
+        }
+        if ($dto->email !== null) {
+            $user->setEmail($dto->email);
+        }
+        if ($dto->password !== null) {
+            $user->setPassword($dto->password);
+        }
+        if ($dto->isAdmin !== null) {
+            $user->setIsAdmin((bool)$dto->isAdmin);
+        }
         return $user;
     }
 }

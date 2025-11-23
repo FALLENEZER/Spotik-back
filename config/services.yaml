@@ -21,3 +21,8 @@ services:
     App\Service\ExternalApiService:
         arguments:
             $baseUrl: '%env(EXTERNAL_API_URL)%'
+
+    App\State\UserPasswordHasher:
+        decorates: 'api_platform.doctrine.orm.state.persist_processor'
+        arguments:
+            $processor: '@App\State\UserPasswordHasher.inner'
