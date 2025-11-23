@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\DTO\Input\User\UserUpdateDTO;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,33 +13,39 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private EntityManagerInterface $em, ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function store(User $user, $isFlush = true): User
+    {
+        $this->em->persist($user);
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($isFlush) {
+            $this->em->flush();
+        }
+
+        return $user;
+    }
+
+    public function update(User $user, $isFlush = true): User
+    {
+        $this->em->persist($user);
+
+        if ($isFlush) {
+            $this->em->flush();
+        }
+
+        return $user;
+    }
+
+    public function destroy(User $user, $isFlush = true): void
+    {
+        $this->em->remove($user);
+
+        if ($isFlush) {
+            $this->em->flush();
+        }
+    }
 }
