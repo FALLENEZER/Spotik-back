@@ -4,6 +4,7 @@ namespace App\Validator;
 
 use App\DTO\Input\User\UserInputDTO;
 use App\DTO\Input\User\UserUpdateDTO;
+use App\Exception\ValidationException;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -25,7 +26,7 @@ class UserValidator
                 $message[$error->getPropertyPath()][] = $error->getMessage();
             }
 
-            throw new InvalidArgumentException(json_encode($message));
+            throw new ValidationException($message);
         }
     }
 }

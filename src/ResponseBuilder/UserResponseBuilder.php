@@ -2,7 +2,6 @@
 
 namespace App\ResponseBuilder;
 
-use App\DTO\Output\User\UserOutputDTO;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Resource\UserResource;
@@ -42,8 +41,8 @@ class UserResponseBuilder
         return new JsonResponse($userResource, $status, $headers, $isJson);
     }
 
-    public function destroyUserResponse($status = 200, $headers = [], $isJson = true): JsonResponse
+    public function destroyUserResponse($status = 200, $headers = []): JsonResponse
     {
-        return new JsonResponse(['message' => 'deleted'], $status, $headers, $isJson);
+        return new JsonResponse(['message' => 'deleted'], $status, $headers);
     }
 }

@@ -38,8 +38,8 @@ class UserController extends  AbstractController
         $data = json_decode($request->getContent(), true);
 
         $userInputDTO = $this->factory->makeUserInputDTO($data);
-        $userInputDTO = $this->passwordHashService->hashPassword($userInputDTO);
         $this->validator->validate($userInputDTO);
+        $userInputDTO = $this->passwordHashService->hashPassword($userInputDTO);
         $user = $this->service->store($userInputDTO);
         return $this->builder->storeUserResponse($user);
     }
@@ -56,17 +56,17 @@ class UserController extends  AbstractController
         $data = json_decode($request->getContent(), true);
 
         $updateUserDTO = $this->factory->makeUserUpdateDTO($data);
-        $userInputDTO = $this->passwordHashService->hashPassword($updateUserDTO);
         $this->validator->validate($updateUserDTO);
+        $userInputDTO = $this->passwordHashService->hashPassword($updateUserDTO);
         $user = $this->service->update($user ,$updateUserDTO);
         return $this->builder->updateUserResponse($user);
     }
 
-    #[Route('api/users/{user}', name: 'users_edit', methods: ['DELETE'])]
+    #[Route('api/users/{user}', name: 'users_delete', methods: ['DELETE'])]
     public function destroy(User $user): JsonResponse
     {
         $this->service->destroy($user);
-        return $this->builder->destroyUserResponse($user);
+        return $this->builder->destroyUserResponse();
     }
 
 }
