@@ -27,4 +27,15 @@ class RoomResponseBuilder
         return new JsonResponse($roomResource, $status, $headers, $isJson);
     }
 
+    public function joinRoomResponse(Room $room, $status = 200, $headers = [], $isJson = true): JsonResponse
+    {
+        $roomDTO = $this->roomFactory->makeRoomOutputDTO($room);
+        $roomResource = $this->roomResource->roomItem($roomDTO);
+        return new JsonResponse($roomResource, $status, $headers, $isJson);
+    }
+
+    public function destroyRoomResponse($status = 200, $headers = []): JsonResponse
+    {
+        return new JsonResponse(['message' => 'deleted'], $status, $headers);
+    }
 }

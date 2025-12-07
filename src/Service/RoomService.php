@@ -8,13 +8,15 @@ use App\Entity\User;
 use App\Factory\RoomFactory;
 use App\Repository\RoomRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use http\Exception\RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class RoomService
 {
     public function __construct(
-        private RoomRepository $roomRepository,
+        private RoomRepository         $roomRepository,
         private EntityManagerInterface $em,
+        private RoomPublisher         $roomPublisher,
     )
     {
 
@@ -31,12 +33,24 @@ class RoomService
 
 
     }
+
     public function joinRoom(Room $room, User $user): Room
     {
         if ($room->getMembers()->contains($user)) {
-            $room->addMember($user);
-            $this->em->flush();
+            throw new RuntimeException('User already joined');
         }
+
+        if (count($room->getMembers()) >= $room->getMaxUsers()) {
+            throw new RuntimeException('Room is full');
+        }
+
+        $room->addMember($user);
+        $this->em->persist($room);
+        $this->em->flush();
+
+        $this->roomPublisher->publish($room, 'user_joined', [
+            'username' => $user->getName()
+        ]);
 
         return $room;
     }
@@ -47,6 +61,13 @@ class RoomService
             $room->removeMember($user);
             $this->em->flush();
         }
+
+
         return $room;
+    }
+
+    public function destroy(Room $room): JsonResponse
+    {
+        $this->roomRepository->destroy($room);
     }
 }

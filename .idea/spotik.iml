@@ -121,6 +121,9 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/web-link" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/theseer/tokenizer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/willdurand/negotiation" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/lcobucci/jwt" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/mercure" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/mercure-bundle" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

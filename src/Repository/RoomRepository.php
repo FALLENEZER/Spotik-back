@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Room;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,7 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class RoomRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private EntityManagerInterface $em ,ManagerRegistry $registry)
     {
         parent::__construct($registry, Room::class);
     }
@@ -40,4 +41,13 @@ class RoomRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function destroy(Room $room, $isFlush = true): void
+    {
+        $this->em->remove($room);
+
+        if ($isFlush) {
+            $this->em->flush();
+        }
+    }
 }

@@ -24,7 +24,7 @@ class RoomController extends AbstractController
     {
     }
 
-    #[Route('api/rooms', name: 'rooms_index', methods: ['GET'])]
+    #[Route('api/rooms', name: 'index', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $rooms = $this->roomService->index();
@@ -32,18 +32,18 @@ class RoomController extends AbstractController
     }
 
 
-    #[Route('/api/rooms', name: 'rooms_create', methods: ['GET'])]
-    public function create(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-
-        $host = $this->getUser();
-        if (!$host instanceof User) {
-            return $this->json(['error' => 'Unauthorized'], 401);
-        }
-
-        $roomCreateInputDTO = $this->roomFactory->makeRoomCreateInputDTO($data);
-    }
+//    #[Route('/api/rooms', name: 'rooms_create', methods: ['GET'])]
+//    public function create(Request $request): JsonResponse
+//    {
+//        $data = json_decode($request->getContent(), true);
+//
+//        $host = $this->getUser();
+//        if (!$host instanceof User) {
+//            return $this->json(['error' => 'Unauthorized'], 401);
+//        }
+//
+//        $roomCreateInputDTO = $this->roomFactory->makeRoomCreateInputDTO($data);
+//    }
 ////
 //    #[Route('', name: 'create', methods: ['POST'])]
 //    public function create(Request $request): JsonResponse
@@ -70,16 +70,35 @@ class RoomController extends AbstractController
 //        return $this->json($this->transformRoom($room, true), Response::HTTP_CREATED);
 //    }
 
-    #[Route('api/rooms/{room}', name: 'rooms_show', methods: ['GET'])]
+    #[Route('api/rooms/{room}', name: 'show', methods: ['GET'])]
     public function show(Room $room): JsonResponse
     {
         return $this->builder->showRoomResponse($room);
     }
 
-    #[Route('api/rooms/{room}', name: 'rooms_join', methods: ['POST'])]
-    public function join(Request $request): JsonResponse
+    #[Route('api/rooms/{room}/join', name: 'join', methods: ['POST'])]
+    public function join(Room $room): JsonResponse
     {
+         $user = $this->getUser();
 
+         if (!$user instanceof User) {
+             return  $this->json(['error' => 'Unauthorized'], 401);
+         }
+
+        try {
+            $updatedRoom = $this->roomService->joinRoom($room, $user);
+        } catch (\RuntimeException $exception) {
+             return  $this->json(['error' => $exception->getMessage()], 400);
+        }
+
+         return $this->builder->joinRoomResponse($updatedRoom);
+    }
+
+    #[Route('api/rooms/{room}', name: 'destroy', methods: ['DELETE'])]
+    public function destroy(Room $room): JsonResponse
+    {
+        $this->roomService->destroy($room);
+        return $this->builder->destroyRoomResponse();
     }
 }
 
