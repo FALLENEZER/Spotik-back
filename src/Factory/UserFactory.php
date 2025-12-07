@@ -39,7 +39,6 @@ class UserFactory
         $user->name = $data['name'] ?? null;
         $user->email = $data['email'] ?? null;
         $user->password = $data['password'] ?? null;
-        // Для PATCH не подставляем значение по умолчанию, чтобы не затирать поле
         $user->isAdmin = $data['isAdmin'] ?? null;
         return $user;
     }
@@ -48,10 +47,8 @@ class UserFactory
     {
         $userDto = new UserOutputDTO();
 
-        $userDto->id = $user->getId();
         $userDto->name = $user->getName();
         $userDto->email = $user->getEmail();
-        $userDto->isAdmin = $user->isAdmin();
 
         return $userDto;
     }
