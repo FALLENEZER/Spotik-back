@@ -21,10 +21,14 @@ class AuthController extends AbstractController
     {
     }
 
-    #[Route('api/auth', name: 'auth', methods: ['POST'])]
+    #[Route('/api/auth/login', name: 'auth_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        if (!\is_array($data)) {
+            // Fallback to form or query params when JSON body is absent/invalid
+            $data = $request->request->all();
+        }
 
         $loginDto = $this->factory->makeLoginDTO($data);
         $user = $this->service->login($loginDto);
