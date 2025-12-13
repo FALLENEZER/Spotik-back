@@ -17,6 +17,7 @@ class AuthController extends AbstractController
         private AuthService $service,
         private AuthFactory $factory,
         private AuthResponseBuilder $responseBuilder,
+        private UserRepository $userRepository,
     )
     {
     }
@@ -25,16 +26,38 @@ class AuthController extends AbstractController
     public function login(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        if (!\is_array($data)) {
-            // Fallback to form or query params when JSON body is absent/invalid
-            $data = $request->request->all();
-        }
 
         $loginDto = $this->factory->makeLoginDTO($data);
         $user = $this->service->login($loginDto);
 
         if (!$user) {
             return $this->responseBuilder->errorResponse();
+        }
+
+        return $this->responseBuilder->successResponse($user);
+    }
+
+    #[Route('/api/auth/me', name: 'auth_me', methods: ['GET'])]
+    public function me(Request $request): JsonResponse
+    {
+        // Попытка получить email из query (?email=) или из заголовка Authorization: Bearer <email>
+        $email = $request->query->get('email');
+
+        if (!$email) {
+            $authorization = $request->headers->get('Authorization');
+            if ($authorization && str_starts_with($authorization, 'Bearer ')) {
+                $email = substr($authorization, 7);
+            }
+        }
+
+        if (!$email) {
+            return $this->responseBuilder->errorResponse(401);
+        }
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            return $this->responseBuilder->errorResponse(401);
         }
 
         return $this->responseBuilder->successResponse($user);

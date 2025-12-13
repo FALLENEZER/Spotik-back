@@ -17,7 +17,7 @@ class RoomResponseBuilder
     {
         $roomOutputDTOs = $this->roomFactory->makeRoomOutputDTOs($rooms);
         $roomResourses = $this->roomResource->roomCollection($roomOutputDTOs);
-
+        return new JsonResponse($roomResourses, $status, $header, $isJson);
     }
 
     public function showRoomResponse(Room $room, $status = 200, $headers = [], $isJson = true): JsonResponse
