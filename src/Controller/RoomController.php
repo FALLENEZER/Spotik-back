@@ -19,7 +19,7 @@ class RoomController extends AppController
     {
     }
 
-    #[Route('/rooms', name: 'index', methods: ['GET'])]
+    #[Route('', name: 'index', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $rooms = $this->service->index();
@@ -27,7 +27,7 @@ class RoomController extends AppController
     }
 
 
-    #[Route('/rooms}', name: 'create', methods: ['POST'])]
+    #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $user = $this->getUser();
@@ -42,13 +42,13 @@ class RoomController extends AppController
         return $this->responseBuilder->createRoomResponse($room);
     }
 
-    #[Route('/rooms/{room<\d+>}', name: 'show', methods: ['GET'])]
+    #[Route('/{room<\d+>}', name: 'show', methods: ['GET'])]
     public function show(Room $room): JsonResponse
     {
         return $this->responseBuilder->showRoomResponse($room);
     }
 
-    #[Route('/rooms/{room<\d+>}/join', name: 'join', methods: ['POST'])]
+    #[Route('/{room<\d+>}/join', name: 'join', methods: ['POST'])]
     public function join(Room $room): JsonResponse
     {
         $user = $this->getUser();
@@ -61,7 +61,7 @@ class RoomController extends AppController
         return $this->responseBuilder->joinRoomResponse($room);
     }
 
-    #[Route('/rooms/{room<\d+>}/leave', name: 'leave', methods: ['POST'])]
+    #[Route('/{room<\d+>}/leave', name: 'leave', methods: ['POST'])]
     public function leave(Room $room): JsonResponse
     {
         $user = $this->getUser();
