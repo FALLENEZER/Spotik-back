@@ -8,7 +8,7 @@ services:
         dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-        - 8000:80
+        - 8000:8000
     environment:
         # Настройка подключения к БД (используем имя сервиса spotik-pgdb вместо localhost)
         DATABASE_URL: "postgresql://app:!ChangeMe!@spotik-pgdb:5432/app?serverVersion=16&charset=utf8"
