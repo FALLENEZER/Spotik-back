@@ -16,10 +16,10 @@ class UserService
     {
     }
 
-    public function store(UserInputDTO $userInputDTO): User
+    public function create(UserInputDTO $userInputDTO): User
     {
         $user = $this->userFactory->makeUser($userInputDTO);
-        return $this->repository->store($user);
+        return $this->repository->create($user);
     }
 
     public function index(): array
@@ -33,7 +33,7 @@ class UserService
         return $this->repository->update($user);
     }
 
-    public function destroy(User $user): void
+    public function delete(User $user): void
     {
         $this->repository->destroy($user);
     }

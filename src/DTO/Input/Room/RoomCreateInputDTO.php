@@ -2,6 +2,7 @@
 
 namespace App\DTO\Input\Room;
 
+use App\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class RoomCreateInputDTO
@@ -13,6 +14,9 @@ class RoomCreateInputDTO
     #[Assert\Positive]
     #[Assert\LessThanOrEqual(50)]
     public ?int $maxUsers = 50;
+
+    #[Assert\NotNull]
+    public ?User $host = null;
 
     public ?bool $isPrivate = false;
 }

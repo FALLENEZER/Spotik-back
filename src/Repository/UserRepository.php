@@ -17,7 +17,7 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function store(User $user, $isFlush = true): User
+    public function create(User $user, $isFlush = true): User
     {
         $this->em->persist($user);
 

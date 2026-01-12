@@ -6,8 +6,10 @@ use App\Entity\Playlist;
 use App\Entity\Room;
 use App\Entity\RoomQueue;
 use App\Entity\User;
+use App\Repository\RoomRepository;
 use App\Service\RequestUserProvider;
 use App\Service\RoomQueueManager;
+use App\Service\RoomQueueService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,14 +17,31 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-#[Route('/api/rooms/{room}/queue', name: 'rooms_queue_')]
-class RoomQueueController extends AbstractController
+#[Route('/api/rooms/{room<\d+>}/queue', name: 'rooms_queue_')]
+class RoomQueueController extends AppController
 {
     public function __construct(
+        private readonly RoomQueueService $service,
         private readonly RoomQueueManager $roomQueueManager,
-        private readonly RequestUserProvider $requestUserProvider,
     ) {
     }
+
+
+    #[Route('', name: 'add', methods: ['POST'])]
+    public function addTrack(Request $request, Room $room)
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $this->service->addTrack($room, $user, $data);
+
+
+    }
+
 
     #[Route('', name: 'list', methods: ['GET'])]
     public function index(Room $room, Request $request): JsonResponse

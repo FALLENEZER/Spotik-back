@@ -16,7 +16,7 @@ class Track
     private ?int $id = null;
 
     #[ORM\Column(length: 128, unique: true, nullable: true)]
-    private ?string $spotifyId = null;
+    private ?string $path = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -56,14 +56,14 @@ class Track
         return $this->id;
     }
 
-    public function getSpotifyId(): ?string
+    public function getPath(): ?string
     {
-        return $this->spotifyId;
+        return $this->path;
     }
 
-    public function setSpotifyId(?string $spotifyId): static
+    public function setPath(?string $path): static
     {
-        $this->spotifyId = $spotifyId;
+        $this->path = $path;
 
         return $this;
     }

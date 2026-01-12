@@ -9,14 +9,16 @@ use App\Factory\RoomFactory;
 use App\Repository\RoomRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use http\Exception\RuntimeException;
+use phpDocumentor\Reflection\Types\Iterable_;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class RoomService
 {
     public function __construct(
-        private RoomRepository         $roomRepository,
+        private RoomRepository         $repository,
+        private RoomFactory            $factory,
         private EntityManagerInterface $em,
-        private RoomPublisher         $roomPublisher,
+        private RoomPublisher          $publisher,
     )
     {
 
@@ -24,13 +26,13 @@ class RoomService
 
     public function index(): array
     {
-        return $this->roomRepository->findAll();
+        return $this->repository->findAll();
     }
 
-    public function create(User $host, RoomCreateInputDTO $inputDTO): Room
+    public function create(User $user, array $data): Room
     {
-        $room = new Room();
-
+        $roomDto = $this->factory->makeRoomCreateInputDTO($data);
+        $roomDto->host = $user;
 
     }
 
@@ -44,11 +46,9 @@ class RoomService
             throw new RuntimeException('Room is full');
         }
 
-        $room->addMember($user);
-        $this->em->persist($room);
-        $this->em->flush();
+        $room = $this->repository->join($room, $user);
 
-        $this->roomPublisher->publish($room, 'user_joined', [
+        $this->publisher->publish($room, 'user_joined', [
             'username' => $user->getName()
         ]);
 
@@ -57,17 +57,20 @@ class RoomService
 
     public function leaveRoom(Room $room, User $user): Room
     {
-        if ($room->getMembers()->contains($user)) {
-            $room->removeMember($user);
-            $this->em->flush();
+        if (!$room->getMembers()->contains($user)) {
+            throw new RuntimeException('User not in room');
         }
 
+        $room = $this->repository->leave($room, $user);
+        $this->publisher->publish($room, 'user_left', [
+            'username' => $user->getName()
+        ]);
 
         return $room;
     }
 
-    public function destroy(Room $room): JsonResponse
+    public function delete(Room $room): void
     {
-        $this->roomRepository->destroy($room);
+        $this->repository->delete($room);
     }
 }

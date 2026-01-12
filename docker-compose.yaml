@@ -1,7 +1,11 @@
 
 services:
+
+#  spotik-app:
+#    container_name: spotik-app
+#    image:
 ###> doctrine/doctrine-bundle ###
-  database:
+  spotik-pgdb:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
@@ -22,7 +26,7 @@ services:
 ###< doctrine/doctrine-bundle ###
 
 ###> symfony/mercure-bundle ###
-  mercure:
+  spotik-mercure:
     image: dunglas/mercure
     restart: unless-stopped
     environment:

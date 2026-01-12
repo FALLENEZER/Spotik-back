@@ -11,17 +11,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/api/auth', name: 'auth_')]
 class AuthController extends AbstractController
 {
     function __construct(
-        private AuthService $service,
-        private AuthFactory $factory,
+        private AuthService         $service,
+        private AuthFactory         $factory,
         private AuthResponseBuilder $responseBuilder,
     )
     {
     }
 
-    #[Route('api/auth', name: 'auth', methods: ['POST'])]
+    #[Route('/login', name: 'login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -33,6 +34,17 @@ class AuthController extends AbstractController
             return $this->responseBuilder->errorResponse();
         }
 
+
         return $this->responseBuilder->successResponse($user);
+    }
+
+    #[Route('/register', name: 'register', methods: ['POST'])]
+    public function register(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $user = $this->service->register($data);
+
+        return $this->responseBuilder->registerResponse($user);
     }
 }

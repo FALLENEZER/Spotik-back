@@ -16,6 +16,11 @@ class RoomFactory
 
     }
 
+    public function makeRoom(RoomInputDTO $roomInputDTO): Room
+    {
+        $room = new Room();
+    }
+
     public function makeRoomCreateInputDTO(array $data): RoomCreateInputDTO
     {
         $room = new RoomCreateInputDTO();

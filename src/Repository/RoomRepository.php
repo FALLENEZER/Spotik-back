@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Room;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,6 +18,30 @@ class RoomRepository extends ServiceEntityRepository
         parent::__construct($registry, Room::class);
     }
 
+    public function store(Room $room, $isFlush = true): Room
+    {
+        $this->em->persist($room);
+    }
+
+    public function leave(Room $room, User $user, $isFlush = true): Room
+    {
+        $room->removeMember($user);
+        if ($isFlush) {
+            $this->em->flush();
+        }
+
+        return $room;
+    }
+
+    public function join(Room $room, User $user, $isFlush = true): Room
+    {
+        $room->addMember($user);
+        if ($isFlush) {
+            $this->em->flush();
+        }
+
+        return $room;
+    }
     //    /**
     //     * @return Room[] Returns an array of Room objects
     //     */
@@ -42,7 +67,7 @@ class RoomRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function destroy(Room $room, $isFlush = true): void
+    public function delete(Room $room, $isFlush = true): void
     {
         $this->em->remove($room);
 
