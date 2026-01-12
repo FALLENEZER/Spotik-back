@@ -26,5 +26,7 @@ RUN composer install
 # Открываем порт 8000
 EXPOSE 8000
 
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public/"]
+
 # Команда запуска сервера Symfony
-CMD ["symfony", "server:start", "--no-tls", "--port=8000", "--allow-http"]
+#CMD ["symfony", "server:start", "--no-tls", "--port=8000", "--address=0.0.0.0", "--allow-http"]
