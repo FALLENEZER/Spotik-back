@@ -1,9 +1,29 @@
 
 services:
 
-#  spotik-app:
-#    container_name: spotik-app
-#    image:
+  spotik-app:
+    container_name: spotik-app
+    build:
+        context: .
+        dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+        - 8000:80
+    environment:
+        # Настройка подключения к БД (используем имя сервиса spotik-pgdb вместо localhost)
+        DATABASE_URL: "postgresql://app:!ChangeMe!@spotik-pgdb:5432/app?serverVersion=16&charset=utf8"
+        APP_ENV: dev
+        APP_SECRET: ChangeMe
+        MERCURE_URL: http://spotik-mercure/.well-known/mercure
+        MERCURE_PUBLIC_URL: http://localhost:3001/.well-known/mercure
+        MERCURE_JWT_TOKEN: "!ChangeThisMercureHubJWTSecretKey!"
+    depends_on:
+        spotik-pgdb:
+            condition: service_healthy
+
+    volumes:
+        - .:/app
+        - ./var:/app/var
 ###> doctrine/doctrine-bundle ###
   spotik-pgdb:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
