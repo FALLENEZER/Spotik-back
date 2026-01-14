@@ -16,9 +16,16 @@ class RoomFactory
 
     }
 
-    public function makeRoom(RoomInputDTO $roomInputDTO): Room
+    public function makeRoom(RoomCreateInputDTO $roomInputDTO): Room
     {
         $room = new Room();
+        $room->setName($roomInputDTO->name);
+        $room->setHost($roomInputDTO->host);
+        $room->addMember($roomInputDTO->host);
+        $room->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
+        $room->setMaxUsers($roomInputDTO->maxUsers);
+        $room->setIsPrivate($roomInputDTO->isPrivate);
+        return $room;
     }
 
     public function makeRoomCreateInputDTO(array $data): RoomCreateInputDTO

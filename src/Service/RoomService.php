@@ -2,23 +2,18 @@
 
 namespace App\Service;
 
-use App\DTO\Input\Room\RoomCreateInputDTO;
 use App\Entity\Room;
 use App\Entity\User;
 use App\Factory\RoomFactory;
 use App\Repository\RoomRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use http\Exception\RuntimeException;
-use phpDocumentor\Reflection\Types\Iterable_;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class RoomService
 {
     public function __construct(
-        private RoomRepository         $repository,
-        private RoomFactory            $factory,
-        private EntityManagerInterface $em,
-        private RoomPublisher          $publisher,
+        private readonly RoomRepository $repository,
+        private readonly RoomFactory    $factory,
+        private readonly RoomPublisher  $hub,
     )
     {
 
@@ -33,7 +28,9 @@ class RoomService
     {
         $roomDto = $this->factory->makeRoomCreateInputDTO($data);
         $roomDto->host = $user;
+        $room = $this->factory->makeRoom($roomDto);
 
+        return $this->repository->create($room);
     }
 
     public function joinRoom(Room $room, User $user): Room
@@ -48,7 +45,7 @@ class RoomService
 
         $room = $this->repository->join($room, $user);
 
-        $this->publisher->publish($room, 'user_joined', [
+        $this->hub->publish($room, 'user_joined', [
             'username' => $user->getName()
         ]);
 
@@ -62,7 +59,7 @@ class RoomService
         }
 
         $room = $this->repository->leave($room, $user);
-        $this->publisher->publish($room, 'user_left', [
+        $this->hub->publish($room, 'user_left', [
             'username' => $user->getName()
         ]);
 

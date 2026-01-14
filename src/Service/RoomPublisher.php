@@ -21,4 +21,16 @@ class RoomPublisher
         );
         $this->hub->publish($update);
     }
+
+    public function publishToUser(Room $room, int $userId, string $event, array $payload = []): void
+    {
+        $data = array_merge(['event' => $event, 'roomId' => $room->getId()], $payload);
+
+        $update = new Update(
+            topics: sprintf('rooms/%d/user/%d', $room->getId(), $userId),
+            data: json_encode($data),
+        );
+
+        $this->hub->publish($update);
+    }
 }

@@ -27,15 +27,23 @@ class AuthController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $loginDto = $this->factory->makeLoginDTO($data);
-        $user = $this->service->login($loginDto);
+        $user = $this->service->login($data);
 
         if (!$user) {
             return $this->responseBuilder->errorResponse();
         }
 
-
         return $this->responseBuilder->successResponse($user);
+//
+//        $loginDto = $this->factory->makeLoginDTO($data);
+//        $user = $this->service->login($loginDto);
+//
+//        if (!$user) {
+//            return $this->responseBuilder->errorResponse();
+//        }
+//
+//
+//        return $this->responseBuilder->successResponse($user);
     }
 
     #[Route('/register', name: 'register', methods: ['POST'])]

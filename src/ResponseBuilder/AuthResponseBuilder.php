@@ -20,8 +20,8 @@ class AuthResponseBuilder
 
     public function successResponse(User $user, $status = 200, $headers = [], $isJson = true): JsonResponse
     {
-        $userOutputDTO = $this->factory->makeUserOutputDTO($user);
-        $userResource = $this->resource->authItem($userOutputDTO);
+//        $userOutputDTO = $this->factory->makeUserOutputDTO($user);
+//        $userResource = $this->resource->authItem($userOutputDTO);
         $token = $this->jwtManager->create($user);
         return new JsonResponse($token, $status, $headers, $isJson);
     }

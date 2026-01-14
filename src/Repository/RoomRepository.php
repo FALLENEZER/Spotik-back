@@ -18,9 +18,14 @@ class RoomRepository extends ServiceEntityRepository
         parent::__construct($registry, Room::class);
     }
 
-    public function store(Room $room, $isFlush = true): Room
+    public function create(Room $room, $isFlush = true): Room
     {
         $this->em->persist($room);
+        if ($isFlush) {
+            $this->em->flush();
+        }
+
+        return $room;
     }
 
     public function leave(Room $room, User $user, $isFlush = true): Room
