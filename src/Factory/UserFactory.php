@@ -5,6 +5,7 @@ namespace App\Factory;
 use App\DTO\Input\User\UserInputDTO;
 use App\DTO\Input\User\UserUpdateDTO;
 use App\DTO\Output\User\UserOutputDTO;
+use App\DTO\Output\User\UserShortOutputDTO;
 use App\Entity\User;
 
 class UserFactory
@@ -48,7 +49,7 @@ class UserFactory
         $userDto = new UserOutputDTO();
 
         $userDto->name = $user->getName();
-        $userDto->email = $user->getEmail();
+//        $userDto->email = $user->getEmail();
 
         return $userDto;
     }
@@ -56,6 +57,21 @@ class UserFactory
     public function makeUserOutputDTOs(array $users): array
     {
         return array_map(fn($user) => $this->makeUserOutputDTO($user), $users);
+    }
+
+    public function makeUserShortOutputDTO(User $user): UserShortOutputDTO
+    {
+        $userDto = new UserShortOutputDTO();
+        $userDto->name = $user->getName();
+        return $userDto;
+    }
+
+    public function makeUserShortOutputDTOs(iterable $users): array
+    {
+        $usersArray = is_array($users) ? $users : iterator_to_array($users);
+
+        return array_map(fn($user) => $this->makeUserShortOutputDTO($user), $usersArray);
+//        return array_map(fn($user) => $this->makeUserShortOutputDTO($user), $users);
     }
 
     public function editUser(User $user, UserUpdateDTO $dto): User

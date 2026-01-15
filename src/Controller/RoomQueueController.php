@@ -7,6 +7,7 @@ use App\Entity\Room;
 use App\Entity\RoomQueue;
 use App\Entity\User;
 use App\Repository\RoomRepository;
+use App\ResponseBuilder\RoomQueueResponseBuilder;
 use App\Service\RequestUserProvider;
 use App\Service\RoomQueueManager;
 use App\Service\RoomQueueService;
@@ -22,13 +23,13 @@ class RoomQueueController extends AppController
 {
     public function __construct(
         private readonly RoomQueueService $service,
-        private readonly RoomQueueManager $roomQueueManager,
+        private readonly RoomQueueResponseBuilder $responseBuilder,
     ) {
     }
 
 
     #[Route('', name: 'add', methods: ['POST'])]
-    public function addTrack(Request $request, Room $room)
+    public function addTrack(Request $request, Room $room) : JsonResponse
     {
         $user = $this->getUser();
         if (!$user) {
@@ -37,21 +38,25 @@ class RoomQueueController extends AppController
 
         $data = json_decode($request->getContent(), true);
 
-        $this->service->addTrack($room, $user, $data);
+        $queueItem = $this->service->addTrack($room, $user, $data);
 
-
+        return $this->responseBuilder->createRoomQueueResponse($queueItem);
     }
 
-    #[Route('')]
-    public function vote(Room $room): JsonResponse
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->json(['error' => 'Unauthorized'], 401);
-        }
-
-        $data = json_decode()
-    }
+//    #[Route('/{queueItem<\d+>}/vote', name: 'vote', methods: ['POST'])]
+//    public function vote(Room $room, RoomQueue $queueItem, Request $request): JsonResponse
+//    {
+//        $user = $this->getUser();
+//        if (!$user) {
+//            return $this->json(['error' => 'Unauthorized'], 401);
+//        }
+//
+//        if ($queueItem->getRoom()?->getId() !== $room->getId()) {
+//            return $this->json(['error' => 'Queue item does not belong to this room'], 404);
+//        }
+//
+//
+//    }
 
     #[Route('/playback', name: 'playback', methods: ['POST'])]
     public function playback(Room $room, Request $request): JsonResponse

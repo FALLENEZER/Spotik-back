@@ -22,7 +22,6 @@ class RoomFactory
         $room->setName($roomInputDTO->name);
         $room->setHost($roomInputDTO->host);
         $room->addMember($roomInputDTO->host);
-        $room->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
         $room->setMaxUsers($roomInputDTO->maxUsers);
         $room->setIsPrivate($roomInputDTO->isPrivate);
         return $room;
@@ -33,8 +32,12 @@ class RoomFactory
         $room = new RoomCreateInputDTO();
 
         $room->name = $data['name'] ?? null;
-        $room->maxUsers = (int)$data['maxUsers'] ?? $room->maxUsers;
-        $room->isPrivate = (bool)$data['isPrivate'] ?? $room->isPrivate;
+        $room->maxUsers = isset($data['maxUsers'])
+            ? (int)$data['maxUsers']
+            : $room->maxUsers;
+        $room->isPrivate = isset($data['isPrivate'])
+            ? (bool)$data['isPrivate']
+            : $room->isPrivate;
 
         return $room;
     }
@@ -54,7 +57,6 @@ class RoomFactory
         $roomDto->isPrivate = $room->isPrivate();
         $roomDto->host = $this->userFactory->makeUserShortOutputDTO($room->getHost());
         $roomDto->members = $this->userFactory->makeUserShortOutputDTOs($room->getMembers());
-//        $roomDto->queueItems = ;
 
         return $roomDto;
     }

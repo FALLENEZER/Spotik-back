@@ -3,7 +3,7 @@
 namespace App\DTO\Output\Room;
 
 use App\DTO\Output\RoomQueue\RoomQueueShortOutputDTO;
-use App\DTO\Output\User\UserShortDTO;
+use App\DTO\Output\User\UserShortOutputDTO;
 use App\Entity\RoomQueue;
 use App\Entity\User;
 use Doctrine\Common\Collections\Collection;
@@ -19,10 +19,10 @@ class RoomOutputDTO
 
     public ?bool $isPrivate = false;
 
-    /** @var UserShortDTO */
-    public UserShortDTO $host;
+    /** @var UserShortOutputDTO */
+    public UserShortOutputDTO $host;
 
-    /** @var UserShortDTO[] */
+    /** @var UserShortOutputDTO[] */
     public array $members;
 
     /** @var RoomQueueShortOutputDTO*/

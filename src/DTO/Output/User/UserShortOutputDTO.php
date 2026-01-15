@@ -2,7 +2,7 @@
 
 namespace App\DTO\Output\User;
 
-class UserShortDTO
+class UserShortOutputDTO
 {
     public string $name;
 }
